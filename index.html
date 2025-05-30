@@ -15,21 +15,20 @@
         }
         #container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
+            align-items: center;
             z-index: 1;
         }
         h1 {
-            text-align: center;
+            margin-top: 20px;
+            font-size: 2.5em;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff;
             border-bottom: 2px solid #fff;
             padding-bottom: 10px;
-            margin-bottom: 20px;
         }
         .tema {
             margin: 20px 0;
@@ -67,11 +66,16 @@
             left: 0;
             z-index: 0;
         }
+        img {
+            width: 200px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
 <canvas id="asciiRain"></canvas>
 <div id="container">
+    <img src="skull.gif" alt="skull">
     <h1>Nothing</h1>
     <div class="tema">
         <a href="tema1.html">Introducción al Hacking Ético</a>
@@ -87,7 +91,6 @@
     </div>
 </div>
 
-<canvas id="asciiRain"></canvas>
 <script>
 const canvas = document.getElementById('asciiRain');
 const ctx = canvas.getContext('2d');
@@ -98,10 +101,10 @@ canvas.height = window.innerHeight;
 let fontSize = 16;
 let columns = Math.floor(canvas.width / fontSize);
 let drops = Array(columns).fill(1);
-let secretMode = false;
 
-const normalChar = '☠';
-const secretChars = ['☠','⚔','☢','☣','☤','▓','█','░','#','$','%','&','*','+','-'];
+let normalChars = ['☠'];
+let hackerChars = ['☠','𓂀','⚔','☢','▓','█','▒','░','@','#','$','%','&','*'];
+let currentCharset = normalChars;
 
 function draw() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
@@ -111,10 +114,7 @@ function draw() {
   ctx.font = fontSize + 'px monospace';
 
   for (let i = 0; i < drops.length; i++) {
-    const text = secretMode 
-        ? secretChars[Math.floor(Math.random() * secretChars.length)] 
-        : normalChar;
-
+    const text = currentCharset[Math.floor(Math.random() * currentCharset.length)];
     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
     if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
@@ -133,9 +133,10 @@ window.addEventListener('resize', () => {
   drops = Array(columns).fill(1);
 });
 
-window.addEventListener('keydown', (e) => {
+// Modo oculto Ctrl+M
+document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'm') {
-    secretMode = !secretMode;
+    currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars;
   }
 });
 </script>
