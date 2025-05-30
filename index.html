@@ -65,7 +65,7 @@
             75% { transform: translate(-2px, 2px); }
             100% { transform: translate(0, 0); }
         }
-        canvas {
+        canvas.bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -75,10 +75,21 @@
             width: 200px;
             height: auto;
         }
+        #snakeGame {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: none;
+            background: #000;
+            border: 3px solid #fff;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
-<canvas id="asciiRain"></canvas>
+<canvas id="asciiRain" class="bg-canvas"></canvas>
 <div id="container">
     <img src="skull.gif" alt="skull">
     <h1>Nothing</h1>
@@ -96,51 +107,114 @@
     </div>
 </div>
 
+<canvas id="snakeGame" width="400" height="400"></canvas>
+
 <script>
+// Fondo de calaveras
 const canvas = document.getElementById('asciiRain');
 const ctx = canvas.getContext('2d');
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
 let fontSize = 16;
 let columns = Math.floor(canvas.width / fontSize);
 let drops = Array(columns).fill().map(() => Math.random() * -20);
-
 let normalChars = ['☠'];
 let hackerChars = ['☠','𓂀','⚔','☢','▓','█','▒','░','@','#','$','%','&','*'];
 let currentCharset = normalChars;
-
 function draw() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
   ctx.fillStyle = '#fff';
   ctx.font = fontSize + 'px monospace';
-
   for (let i = 0; i < drops.length; i++) {
     const text = currentCharset[Math.floor(Math.random() * currentCharset.length)];
     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
     drops[i]++;
   }
 }
-
 setInterval(draw, 35);
-
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   columns = Math.floor(canvas.width / fontSize);
   drops = Array(columns).fill().map(() => Math.random() * -20);
 });
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'm') { currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars; }
+});
+
+// Snake Game
+const snakeCanvas = document.getElementById('snakeGame');
+const sctx = snakeCanvas.getContext('2d');
+let box = 20;
+let snake, direction, food, score, highScore;
+
+function startGame() {
+  snake = [{x: 9*box, y: 10*box}];
+  direction = "RIGHT";
+  food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+  score = 0;
+  highScore = localStorage.getItem('snakeHighScore') || 0;
+  if(window.snakeLoop) clearInterval(window.snakeLoop);
+  window.snakeLoop = setInterval(drawSnake, 100);
+}
+
+function drawSnake() {
+  sctx.fillStyle = "#000";
+  sctx.fillRect(0,0,400,400);
+  for(let i=0; i<snake.length; i++) {
+    sctx.fillStyle = "#fff";
+    sctx.font = "20px monospace";
+    sctx.fillText("☠", snake[i].x+2, snake[i].y+18);
+  }
+  sctx.fillText("☢", food.x+2, food.y+18);
+  let headX = snake[0].x;
+  let headY = snake[0].y;
+  if(direction == "LEFT") headX -= box;
+  if(direction == "UP") headY -= box;
+  if(direction == "RIGHT") headX += box;
+  if(direction == "DOWN") headY += box;
+
+  if(headX == food.x && headY == food.y) {
+    score++;
+    food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
+  } else {
+    snake.pop();
+  }
+
+  let newHead = {x: headX, y: headY};
+
+  if(headX < 0 || headY < 0 || headX >= 400 || headY >= 400 || collision(newHead, snake)) {
+    clearInterval(window.snakeLoop);
+    if(score > highScore) { localStorage.setItem('snakeHighScore', score); }
+    alert("Game Over! Puntuación: " + score + " | Récord: " + Math.max(score, highScore));
+    snakeCanvas.style.display = 'none';
+  }
+  snake.unshift(newHead);
+  sctx.fillText("Score: " + score, 10, 20);
+  sctx.fillText("Record: " + Math.max(score, highScore), 250, 20);
+}
+
+function collision(head, array) {
+  for(let i=0; i<array.length; i++) {
+    if(head.x == array[i].x && head.y == array[i].y) return true;
+  }
+  return false;
+}
+
+document.addEventListener("keydown", directionChange);
+function directionChange(e) {
+  if(e.key == "ArrowLeft" && direction != "RIGHT") direction = "LEFT";
+  else if(e.key == "ArrowUp" && direction != "DOWN") direction = "UP";
+  else if(e.key == "ArrowRight" && direction != "LEFT") direction = "RIGHT";
+  else if(e.key == "ArrowDown" && direction != "UP") direction = "DOWN";
+}
 
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'm') {
-    currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars;
+  if (e.ctrlKey && e.key === 's') {
+    snakeCanvas.style.display = 'block';
+    startGame();
   }
 });
 </script>
