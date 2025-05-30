@@ -144,17 +144,22 @@ document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'm') { currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars; }
 });
 
-// Snake Nokia Edition
+// Snake versión final v3.3
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
-let box = 20, snake, direction, food, score, running = false;
+let box = 20, snake, direction, food, score, running = false, started = false;
 
 function showStartScreen() {
   sctx.fillStyle = "#000";
   sctx.fillRect(0, 0, 400, 400);
   sctx.fillStyle = "#fff";
   sctx.font = "30px monospace";
-  sctx.fillText("PRESS START", 80, 200);
+  sctx.textAlign = "center";
+  sctx.fillText("PRESS START", 200, 200);
+  setInterval(() => {
+    sctx.clearRect(0, 180, 400, 40);
+    sctx.fillText("PRESS START", 200, 200);
+  }, 1000);
 }
 
 function startGame() {
@@ -163,6 +168,7 @@ function startGame() {
   food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
   score = 0;
   running = true;
+  started = true;
   if(window.snakeLoop) clearInterval(window.snakeLoop);
   window.snakeLoop = setInterval(drawSnake, 120);
 }
@@ -172,11 +178,15 @@ function drawSnake() {
   sctx.fillRect(0,0,400,400);
   sctx.fillStyle = "#fff";
   sctx.font = "16px monospace";
-  sctx.fillText("Score: " + score, 10, 20);
+  sctx.fillText("Score: " + score, 50, 20);
   for(let i=0; i<snake.length; i++) {
-    sctx.fillRect(snake[i].x, snake[i].y, box, box);
+    sctx.beginPath();
+    sctx.arc(snake[i].x+box/2, snake[i].y+box/2, box/2-2, 0, 2*Math.PI);
+    sctx.fillStyle = i == 0 ? "#0f0" : "#fff";
+    sctx.fill();
   }
-  sctx.fillRect(food.x, food.y, box, box);
+  sctx.font = "20px Arial";
+  sctx.fillText("🍎", food.x+4, food.y+20);
   let headX = snake[0].x;
   let headY = snake[0].y;
   if(direction == "LEFT") headX -= box;
@@ -196,6 +206,7 @@ function drawSnake() {
   if(headX < 0 || headY < 0 || headX >= 400 || headY >= 400 || collision(newHead, snake)) {
     clearInterval(window.snakeLoop);
     running = false;
+    started = false;
     setTimeout(() => { showStartScreen(); }, 500);
   }
   snake.unshift(newHead);
@@ -209,18 +220,21 @@ function collision(head, array) {
 }
 
 document.addEventListener("keydown", function(e) {
-  if(!running && e.code === "Space") startGame();
+  if(!running && e.code === "Space" && started === false) startGame();
   if(e.key == "ArrowLeft" && direction != "RIGHT") direction = "LEFT";
   else if(e.key == "ArrowUp" && direction != "DOWN") direction = "UP";
   else if(e.key == "ArrowRight" && direction != "LEFT") direction = "RIGHT";
   else if(e.key == "ArrowDown" && direction != "UP") direction = "DOWN";
 });
 
-// Activador del minijuego con Ctrl+Shift+X
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'X') {
-    snakeCanvas.style.display = 'block';
-    showStartScreen();
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'm') {
+    if (snakeCanvas.style.display === 'block') {
+      snakeCanvas.style.display = 'none';
+    } else {
+      snakeCanvas.style.display = 'block';
+      showStartScreen();
+    }
   }
 });
 </script>
