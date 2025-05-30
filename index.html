@@ -29,6 +29,11 @@
             text-shadow: 0 0 5px #fff, 0 0 10px #fff;
             border-bottom: 2px solid #fff;
             padding-bottom: 10px;
+            animation: flicker 3s infinite;
+        }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.4; }
         }
         .tema {
             margin: 20px 0;
@@ -100,7 +105,7 @@ canvas.height = window.innerHeight;
 
 let fontSize = 16;
 let columns = Math.floor(canvas.width / fontSize);
-let drops = Array(columns).fill(1);
+let drops = Array(columns).fill().map(() => Math.random() * -20);
 
 let normalChars = ['☠'];
 let hackerChars = ['☠','𓂀','⚔','☢','▓','█','▒','░','@','#','$','%','&','*'];
@@ -130,10 +135,9 @@ window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   columns = Math.floor(canvas.width / fontSize);
-  drops = Array(columns).fill(1);
+  drops = Array(columns).fill().map(() => Math.random() * -20);
 });
 
-// Modo oculto Ctrl+M
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'm') {
     currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars;
