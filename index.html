@@ -144,7 +144,7 @@ document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'm') { currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars; }
 });
 
-// Snake Game
+// Snake clásico
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
 let box = 20;
@@ -165,10 +165,10 @@ function drawSnake() {
   sctx.fillRect(0,0,400,400);
   for(let i=0; i<snake.length; i++) {
     sctx.fillStyle = "#fff";
-    sctx.font = "20px monospace";
-    sctx.fillText("☠", snake[i].x+2, snake[i].y+18);
+    sctx.fillRect(snake[i].x, snake[i].y, box, box);
   }
-  sctx.fillText("☢", food.x+2, food.y+18);
+  sctx.fillStyle = "#fff";
+  sctx.fillRect(food.x, food.y, box, box);
   let headX = snake[0].x;
   let headY = snake[0].y;
   if(direction == "LEFT") headX -= box;
@@ -192,6 +192,7 @@ function drawSnake() {
     snakeCanvas.style.display = 'none';
   }
   snake.unshift(newHead);
+  sctx.fillStyle = "#fff";
   sctx.fillText("Score: " + score, 10, 20);
   sctx.fillText("Record: " + Math.max(score, highScore), 250, 20);
 }
@@ -203,16 +204,16 @@ function collision(head, array) {
   return false;
 }
 
-document.addEventListener("keydown", directionChange);
-function directionChange(e) {
+document.addEventListener("keydown", function(e) {
   if(e.key == "ArrowLeft" && direction != "RIGHT") direction = "LEFT";
   else if(e.key == "ArrowUp" && direction != "DOWN") direction = "UP";
   else if(e.key == "ArrowRight" && direction != "LEFT") direction = "RIGHT";
   else if(e.key == "ArrowDown" && direction != "UP") direction = "DOWN";
-}
+});
 
+// Activador del minijuego con Ctrl+Shift+X
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 's') {
+  if (e.ctrlKey && e.shiftKey && e.key === 'X') {
     snakeCanvas.style.display = 'block';
     startGame();
   }
