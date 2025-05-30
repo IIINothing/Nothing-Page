@@ -7,16 +7,29 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #000;
             color: #fff;
+            overflow: hidden;
+        }
+        #container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1;
         }
         h1 {
             text-align: center;
             border-bottom: 2px solid #fff;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .tema {
             margin: 20px 0;
@@ -48,9 +61,17 @@
             75% { transform: translate(-2px, 2px); }
             100% { transform: translate(0, 0); }
         }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
     </style>
 </head>
 <body>
+<canvas id="asciiRain"></canvas>
+<div id="container">
     <h1>Nothing</h1>
     <div class="tema">
         <a href="tema1.html">Introducción al Hacking Ético</a>
@@ -64,5 +85,45 @@
         <a href="tema3.html">Exploits y Vulnerabilidades</a>
         <p>Discusión sobre vulnerabilidades conocidas y exploits recientes.</p>
     </div>
+</div>
+
+<canvas id="asciiRain"></canvas>
+<script>
+const canvas = document.getElementById('asciiRain');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const fontSize = 16;
+const columns = Math.floor(canvas.width / fontSize);
+const drops = Array(columns).fill(1);
+
+function draw() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = '#fff';
+  ctx.font = fontSize + 'px monospace';
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = '☠';
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+
+setInterval(draw, 35);
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
 </body>
 </html>
