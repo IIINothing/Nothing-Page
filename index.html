@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nothing v5.2</title>
+    <title>Nothing v5.3</title>
     <style>
         body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; overflow-x: hidden; }
         #asciiRain { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
@@ -220,6 +220,7 @@ Burlas:
 --- FIN DEL ARTÍCULO EXTENDIDO ---
     </div>
 </div>
+<canvas id="asciiRain"></canvas>
 <canvas id="snakeGame" width="400" height="400"></canvas>
 <script>
 // ASCII lluvia solo en bordes
@@ -230,6 +231,8 @@ function resizeRain() {
   fontSize = 16;
   columns = Math.floor(asciiRain.width / fontSize);
   drops = Array(columns).fill().map(() => Math.random() * -20);
+  // Clear on resize
+  ctx.clearRect(0, 0, asciiRain.width, asciiRain.height);
 }
 let fontSize = 16, columns, drops;
 resizeRain();
@@ -239,8 +242,8 @@ function drawRain() {
   ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
   ctx.fillStyle = '#fff'; ctx.font = fontSize + 'px monospace';
   const wrapperWidth = 900;
-  const leftBound = (asciiRain.width - wrapperWidth) / 2 + fontSize * 2;
-  const rightBound = leftBound + wrapperWidth - fontSize * 2;
+  const leftBound = (asciiRain.width - wrapperWidth) / 2;
+  const rightBound = leftBound + wrapperWidth;
   for (let i = 0; i < drops.length; i++) {
     const x = i * fontSize;
     if (x < leftBound || x > rightBound) {
@@ -252,7 +255,12 @@ function drawRain() {
 }
 setInterval(drawRain, 35);
 window.addEventListener('resize', resizeRain);
-document.addEventListener('keydown', e => { if (e.ctrlKey && e.key.toLowerCase() === 'm') rainActive = !rainActive; });
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key.toLowerCase() === 'm') {
+    rainActive = !rainActive;
+    if (!rainActive) ctx.clearRect(0, 0, asciiRain.width, asciiRain.height);
+  }
+});
 
 // Mostrar/ocultar artículo
 function toggleArticle() {
@@ -298,7 +306,7 @@ function drawSnake() {
   if(direction=="UP") headY -= box;
   if(direction=="RIGHT") headX += box;
   if(direction=="DOWN") headY += box;
-  // Colisiones
+  // Colisiones en bordes y auto-colisión
   if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
     clearInterval(gameInterval);
     drawGameOver(); waiting = true; return;
