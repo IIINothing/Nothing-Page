@@ -70,6 +70,7 @@
             top: 0;
             left: 0;
             z-index: 0;
+            display: none;
         }
         img {
             width: 200px;
@@ -110,10 +111,48 @@
 <canvas id="snakeGame" width="400" height="400"></canvas>
 
 <script>
+const canvas = document.getElementById('asciiRain');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let fontSize = 16;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill().map(() => Math.random() * -20);
+let rainActive = false;
+
+function drawRain() {
+  if (!rainActive) return;
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#fff';
+  ctx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const text = '☠';
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
+    drops[i]++;
+  }
+}
+setInterval(drawRain, 35);
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  columns = Math.floor(canvas.width / fontSize);
+  drops = Array(columns).fill().map(() => Math.random() * -20);
+});
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'm') {
+    rainActive = !rainActive;
+    canvas.style.display = rainActive ? 'block' : 'none';
+  }
+});
+
+// Snake Nokia intacto igual que v3.3.3
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
 let box = 20, snake, direction, food, score, running = false, started = false, flickerInterval;
 const snakeColor = '#A6C48A';
+const foodColor = '#FF3B30';
 
 function showStartScreen() {
   sctx.fillStyle = "#000";
@@ -163,8 +202,8 @@ function drawSnake() {
     sctx.fillStyle = snakeColor;
     sctx.fillRect(snake[i].x, snake[i].y, box, box);
   }
-  sctx.font = "20px Arial";
-  sctx.fillText("🍎", food.x+4, food.y+20);
+  sctx.fillStyle = foodColor;
+  sctx.fillRect(food.x, food.y, box, box);
   let headX = snake[0].x;
   let headY = snake[0].y;
   if(direction == "LEFT") headX -= box;
