@@ -110,44 +110,10 @@
 <canvas id="snakeGame" width="400" height="400"></canvas>
 
 <script>
-// Fondo de calaveras ☠
-const canvas = document.getElementById('asciiRain');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-let fontSize = 16;
-let columns = Math.floor(canvas.width / fontSize);
-let drops = Array(columns).fill().map(() => Math.random() * -20);
-let normalChars = ['☠'];
-let hackerChars = ['☠','𓂀','⚔','☢','▓','█','▒','░','@','#','$','%','&','*'];
-let currentCharset = normalChars;
-function draw() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#fff';
-  ctx.font = fontSize + 'px monospace';
-  for (let i = 0; i < drops.length; i++) {
-    const text = currentCharset[Math.floor(Math.random() * currentCharset.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
-    drops[i]++;
-  }
-}
-setInterval(draw, 35);
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  columns = Math.floor(canvas.width / fontSize);
-  drops = Array(columns).fill().map(() => Math.random() * -20);
-});
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'm') { currentCharset = (currentCharset === normalChars) ? hackerChars : normalChars; }
-});
-
-// Snake versión final v3.3
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
-let box = 20, snake, direction, food, score, running = false, started = false;
+let box = 20, snake, direction, food, score, running = false, started = false, flickerInterval;
+const snakeColor = '#A6C48A';
 
 function showStartScreen() {
   sctx.fillStyle = "#000";
@@ -156,13 +122,27 @@ function showStartScreen() {
   sctx.font = "30px monospace";
   sctx.textAlign = "center";
   sctx.fillText("PRESS START", 200, 200);
-  setInterval(() => {
+  if (flickerInterval) clearInterval(flickerInterval);
+  flickerInterval = setInterval(() => {
     sctx.clearRect(0, 180, 400, 40);
+    sctx.fillStyle = "#fff";
     sctx.fillText("PRESS START", 200, 200);
   }, 1000);
 }
 
+function showGameOver() {
+  sctx.fillStyle = "#000";
+  sctx.fillRect(0, 0, 400, 400);
+  sctx.fillStyle = "#fff";
+  sctx.font = "30px monospace";
+  sctx.textAlign = "center";
+  sctx.fillText("GAME OVER", 200, 180);
+  sctx.font = "16px monospace";
+  sctx.fillText("Press Space to Restart", 200, 220);
+}
+
 function startGame() {
+  clearInterval(flickerInterval);
   snake = [{x: 9*box, y: 10*box}];
   direction = "RIGHT";
   food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
@@ -180,10 +160,8 @@ function drawSnake() {
   sctx.font = "16px monospace";
   sctx.fillText("Score: " + score, 50, 20);
   for(let i=0; i<snake.length; i++) {
-    sctx.beginPath();
-    sctx.arc(snake[i].x+box/2, snake[i].y+box/2, box/2-2, 0, 2*Math.PI);
-    sctx.fillStyle = i == 0 ? "#0f0" : "#fff";
-    sctx.fill();
+    sctx.fillStyle = snakeColor;
+    sctx.fillRect(snake[i].x, snake[i].y, box, box);
   }
   sctx.font = "20px Arial";
   sctx.fillText("🍎", food.x+4, food.y+20);
@@ -207,7 +185,7 @@ function drawSnake() {
     clearInterval(window.snakeLoop);
     running = false;
     started = false;
-    setTimeout(() => { showStartScreen(); }, 500);
+    showGameOver();
   }
   snake.unshift(newHead);
 }
@@ -220,7 +198,7 @@ function collision(head, array) {
 }
 
 document.addEventListener("keydown", function(e) {
-  if(!running && e.code === "Space" && started === false) startGame();
+  if(!running && e.code === "Space" && !started) startGame();
   if(e.key == "ArrowLeft" && direction != "RIGHT") direction = "LEFT";
   else if(e.key == "ArrowUp" && direction != "DOWN") direction = "UP";
   else if(e.key == "ArrowRight" && direction != "LEFT") direction = "RIGHT";
@@ -228,9 +206,10 @@ document.addEventListener("keydown", function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'm') {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
     if (snakeCanvas.style.display === 'block') {
       snakeCanvas.style.display = 'none';
+      clearInterval(flickerInterval);
     } else {
       snakeCanvas.style.display = 'block';
       showStartScreen();
