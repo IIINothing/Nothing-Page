@@ -3,106 +3,99 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nothing</title>
+    <title>Nothing v5.0</title>
     <style>
-        body {
-            font-family: monospace, Arial, sans-serif;
-            margin: 0;
-            padding: 30px;
-            background-color: #000;
-            color: #fff;
-            overflow-x: hidden;
-            position: relative;
-        }
-        #asciiRain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            width: 100%;
-            height: 100%;
-        }
-        #wrapper {
-            max-width: 800px;
-            margin: auto;
-        }
-        h1 {
-            font-size: 2.5em;
-            text-align: center;
-            text-shadow: 0 0 5px #fff, 0 0 10px #fff;
-            border-bottom: 2px solid #fff;
-            padding-bottom: 10px;
-            animation: flicker 3s infinite;
-        }
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.4; }
-        }
-        .tema {
-            margin-bottom: 50px;
-        }
-        .tema h2 {
-            font-size: 1.5em;
-            border-bottom: 1px dashed #fff;
-            padding-bottom: 5px;
-        }
-        .tema p {
-            font-size: 1em;
-            margin-top: 10px;
-            line-height: 1.5em;
-        }
+        body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; }
+        #asciiRain { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
+        #wrapper { max-width: 900px; margin: auto; }
+        h1 { font-size: 3em; text-align: center; border-bottom: 2px solid #fff; padding-bottom: 10px; }
+        img { display: block; margin: 20px auto; width: 200px; }
+        .section-title { font-size: 1.8em; cursor: pointer; margin-top: 50px; border-left: 4px solid #fff; padding-left: 10px; }
+        .article-content { display: none; margin-top: 20px; line-height: 1.5em; white-space: pre-wrap; }
+        #snakeGame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none; background: #000; border: 3px solid #fff; padding: 10px; }
     </style>
 </head>
 <body>
 <canvas id="asciiRain"></canvas>
-
 <div id="wrapper">
     <h1>Nothing</h1>
-    <div class="tema">
-        <h2>Introducción al Hacking Ético</h2>
-        <p>La ciberseguridad es uno de los pilares fundamentales en el mundo digital actual. Cada día surgen nuevas amenazas, vulnerabilidades y ataques que afectan tanto a personas como a grandes organizaciones. En este contexto surge el <b>hacking ético</b>, una disciplina centrada en <b>identificar, analizar y mitigar vulnerabilidades antes de que puedan ser explotadas de forma maliciosa</b>.</p>
-        <p>A diferencia de los ciberdelincuentes, el hacker ético trabaja bajo un marco legal y ético, con autorización de las organizaciones, para proteger sistemas, redes y aplicaciones. Su objetivo es anticiparse a los atacantes, utilizando las mismas herramientas y técnicas, pero con el fin de <b>fortalecer la seguridad</b>.</p>
-        <p>Este foro ha sido creado con el propósito de <b>recopilar y organizar información clave sobre hacking, ciberseguridad y técnicas de pentesting</b>. Aquí encontrarás artículos, guías, conceptos y herramientas que te ayudarán a formarte, informarte y comprender mejor este amplio universo.</p>
-        <p>💻 <b>Soy NOTHING, y conmigo aprenderás sobre este contenido.</b></p>
+    <img src="skull.gif" alt="skull">
+
+    <div class="section-title" onclick="toggleArticle()">> CARDING</div>
+    <div class="article-content" id="article">
+        [CONTENIDO COMPLETO DEL ARTÍCULO ULTRA EXTENDIDO INTEGRADO AQUI]
     </div>
 </div>
+<canvas id="snakeGame" width="400" height="400"></canvas>
 
 <script>
-const canvas = document.getElementById('asciiRain');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const asciiRain = document.getElementById('asciiRain');
+const ctx = asciiRain.getContext('2d');
+asciiRain.width = window.innerWidth;
+asciiRain.height = window.innerHeight;
 let fontSize = 16;
-let columns = Math.floor(canvas.width / fontSize);
+let columns = Math.floor(asciiRain.width / fontSize);
 let drops = Array(columns).fill().map(() => Math.random() * -20);
 let rainActive = false;
-
 function drawRain() {
   if (!rainActive) return;
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
   ctx.fillStyle = '#fff';
   ctx.font = fontSize + 'px monospace';
   for (let i = 0; i < drops.length; i++) {
-    const text = '☠';
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
+    const x = i * fontSize;
+    if (x < (asciiRain.width/2 - 450) || x > (asciiRain.width/2 + 450)) {
+      ctx.fillText('☠', x, drops[i] * fontSize);
+    }
+    if (drops[i] * fontSize > asciiRain.height && Math.random() > 0.975) drops[i]=0;
     drops[i]++;
   }
 }
 setInterval(drawRain, 35);
 window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  columns = Math.floor(canvas.width / fontSize);
+  asciiRain.width = window.innerWidth;
+  asciiRain.height = window.innerHeight;
+  columns = Math.floor(asciiRain.width / fontSize);
   drops = Array(columns).fill().map(() => Math.random() * -20);
 });
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'm') {
-    rainActive = !rainActive;
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'm') rainActive = !rainActive; });
+
+function toggleArticle() {
+  const art = document.getElementById('article');
+  art.style.display = (art.style.display === 'block') ? 'none' : 'block';
+}
+
+const snakeCanvas = document.getElementById('snakeGame');
+const sctx = snakeCanvas.getContext('2d');
+let box = 20, snake, direction, food, running = false;
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
+    if (snakeCanvas.style.display === 'block') { snakeCanvas.style.display = 'none'; clearInterval(window.snakeLoop); }
+    else { snakeCanvas.style.display = 'block'; startSnake(); }
   }
 });
+function startSnake() {
+  snake = [{x:9*box,y:10*box}]; direction="RIGHT";
+  food = {x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
+  window.snakeLoop = setInterval(drawSnake,120);
+}
+function drawSnake() {
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  for (let i=0;i<snake.length;i++) {{sctx.fillStyle="#A6C48A"; sctx.fillRect(snake[i].x,snake[i].y,box,box);}}
+  sctx.fillStyle="#FF3B30"; sctx.fillRect(food.x,food.y,box,box);
+  let headX = snake[0].x, headY = snake[0].y;
+  if(direction=="LEFT")headX-=box;if(direction=="UP")headY-=box;
+  if(direction=="RIGHT")headX+=box;if(direction=="DOWN")headY+=box;
+  if(headX==food.x&&headY==food.y){{snake.unshift({x:headX,y:headY});food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};}}
+  else {{snake.pop();snake.unshift({x:headX,y:headY});}}
+}
+document.addEventListener("keydown", function(e) {
+  if(e.key=="ArrowLeft"&&direction!="RIGHT")direction="LEFT";
+  else if(e.key=="ArrowUp"&&direction!="DOWN")direction="UP";
+  else if(e.key=="ArrowRight"&&direction!="LEFT")direction="RIGHT";
+  else if(e.key=="ArrowDown"&&direction!="UP")direction="DOWN";
+});
 </script>
-
 </body>
 </html>
