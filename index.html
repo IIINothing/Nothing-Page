@@ -3,352 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Nothing</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-            overflow: hidden;
-        }
-        #container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            width: 15vw;
-            height: 100vh;
-            pointer-events: none;
-        }
-        #rain-left {
-            left: 0;
-        }
-        #rain-right {
-            right: 0;
-        }
-        #main-content {
-            position: absolute;
-            top: 0;
-            left: 15vw;
-            width: 70vw;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        h1 {
-            text-align: center;
-            font-size: 3em;
-        }
-        #icon {
-            text-align: center;
-            font-family: monospace;
-            white-space: pre;
-            font-size: 1.2em;
-            margin: 0 auto;
-            width: fit-content;
-        }
-        p.intro {
-            margin-top: 20px;
-            line-height: 1.5;
-        }
-        #carding-title {
-            margin-top: 40px;
-            font-size: 1.5em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        #carding-title span {
-            margin-left: 10px;
-        }
-        #carding-content {
-            margin-top: 10px;
-            display: none;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
-        #snake-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            background: #000;
-            border: 2px solid #fff;
-            display: none;
-            z-index: 1000;
-        }
-        #snake-canvas {
-            display: block;
-            background: #000;
-        }
-        #press-start, #game-over {
-            color: #fff;
-            text-align: center;
-            font-size: 1.2em;
-            margin-top: 180px;
-            font-family: sans-serif;
-            animation: blink 1s step-end infinite;
-        }
-        #score-display {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #0f0;
-            font-family: monospace;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="container">
-        <canvas id="rain-left"></canvas>
-        <canvas id="rain-right"></canvas>
-        <div id="main-content">
-            <h1>Nothing</h1>
-            <div id="icon">
-                <!-- ASCII skull icon -->
-                <span>    __</span><br>
-                <span>   / _)</span><br>
-                <span>  ( (_ </span><br>
-                <span>   \__) </span>
-            </div>
-            <p class="intro">
-Soy Nothing, un programador dedicado a compartir información real y sin filtros sobre el mundo del hacking. En este foro encontrarás contenido detallado para cualquier persona interesada en conocer la realidad del hacking ético y sus técnicas, temas que no suelen abordarse en otros lugares. A través de estas páginas, te mostraré cómo funcionan los atacantes y el fraude con tarjetas, para que aprendas y te informes correctamente.
-            </p>
-            <div id="carding-title">
-                <span>>></span><span>CARDING</span>
-            </div>
-            <div id="carding-content">
-[Contenido completo del artículo ultra extendido integrado aquí]
+    <!-- Rain canvases on left and right -->
+    <canvas id="rain-left"></canvas>
+    <canvas id="rain-right"></canvas>
+
+    <div class="content">
+        <h1>Nothing</h1>
+        <img src="ascii_skull.png" alt="ASCII Skull" class="skull">
+        <p class="intro">Soy Nothing, un programador dedicado a compartir información real y sin filtros sobre el mundo del hacking. En este foro encontrarás contenido detallado para cualquier persona interesada en conocer la realidad del hacking ético y sus técnicas, temas que no suelen abordarse en otros lugares. A través de estas páginas, te mostraré cómo funcionan los atacantes y el fraude con tarjetas, para que aprendas y te informes correctamente.</p>
+        <div class="section">
+            <span class="toggle-indicator">[ ]</span> &gt; CARDING
+            <div class="section-content">
+                <!-- Contenido completo del artículo ultra extendido integrado aquí -->
+                <!-- Placeholder text -->
+                <h2>Carding: Fraude con Tarjetas</h2>
+                <p>Aquí va la información detallada sobre carding...</p>
             </div>
         </div>
     </div>
 
-    <div id="snake-modal">
-        <canvas id="snake-canvas" width="400" height="400"></canvas>
-        <div id="press-start">PRESS START</div>
-        <div id="game-over" style="display:none;">GAME OVER</div>
-        <div id="score-display" style="display:none;">Score: 0</div>
+    <!-- Snake game overlay -->
+    <div id="snake-container">
+        <canvas id="snake-canvas"></canvas>
+        <div id="snake-overlay">
+            <div id="press-start">PRESS START</div>
+            <div id="game-over" style="display:none;">GAME OVER</div>
+            <div id="score"></div>
+        </div>
     </div>
 
-    <script>
-        // Rain effect for left and right edges
-        class Rain {
-            constructor(canvas) {
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                this.drops = [];
-                this.columns = 0;
-                this.init();
-                this.running = true;
-            }
-            init() {
-                this.canvas.width = this.canvas.clientWidth;
-                this.canvas.height = this.canvas.clientHeight;
-                this.columns = Math.floor(this.canvas.width / 10);
-                this.drops = new Array(this.columns).fill(0);
-            }
-            draw() {
-                if (!this.running) return;
-                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.fillStyle = '#0F0';
-                this.ctx.font = '10px monospace';
-                for (let i = 0; i < this.columns; i++) {
-                    const text = String.fromCharCode(0x2605);
-                    this.ctx.fillText(text, i * 10, this.drops[i] * 10);
-                    if (this.drops[i] * 10 > this.canvas.height && Math.random() > 0.975) {
-                        this.drops[i] = 0;
-                    }
-                    this.drops[i]++;
-                }
-            }
-            toggle() {
-                this.running = !this.running;
-                if (this.running) this.loop();
-            }
-            loop() {
-                this.draw();
-                if (this.running) requestAnimationFrame(() => this.loop());
-            }
-        }
-
-        const leftCanvas = document.getElementById('rain-left');
-        const rightCanvas = document.getElementById('rain-right');
-        const rainLeft = new Rain(leftCanvas);
-        const rainRight = new Rain(rightCanvas);
-        rainLeft.loop();
-        rainRight.loop();
-
-        // Toggle rain with Ctrl+M
-        window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key.toLowerCase() === 'm') {
-                e.preventDefault();
-                rainLeft.toggle();
-                rainRight.toggle();
-                leftCanvas.style.display = rainLeft.running ? 'block' : 'none';
-                rightCanvas.style.display = rainRight.running ? 'block' : 'none';
-            }
-        });
-
-        // Carding toggle
-        const cardTitle = document.getElementById('carding-title');
-        const cardContent = document.getElementById('carding-content');
-        cardTitle.addEventListener('click', () => {
-            cardContent.style.display = cardContent.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // Snake game
-        const snakeModal = document.getElementById('snake-modal');
-        const snakeCanvas = document.getElementById('snake-canvas');
-        const ctx = snakeCanvas.getContext('2d');
-        const pressStartDiv = document.getElementById('press-start');
-        const gameOverDiv = document.getElementById('game-over');
-        const scoreDisplay = document.getElementById('score-display');
-
-        let snake = [{ x: 200, y: 200 }];
-        let direction = { x: 0, y: 0 };
-        let food = null;
-        let score = 0;
-        let gameInterval = null;
-        let started = false;
-        let allowDirectionChange = true;
-
-        function resetGame() {
-            snake = [{ x: 200, y: 200 }];
-            direction = { x: 0, y: 0 };
-            score = 0;
-            food = randomFood();
-            started = false;
-            allowDirectionChange = true;
-            clearInterval(gameInterval);
-            ctx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-            gameOverDiv.style.display = 'none';
-            scoreDisplay.style.display = 'none';
-            pressStartDiv.style.display = 'block';
-        }
-
-        function randomFood() {
-            const size = 20;
-            const x = Math.floor(Math.random() * (snakeCanvas.width / size)) * size;
-            const y = Math.floor(Math.random() * (snakeCanvas.height / size)) * size;
-            return { x, y };
-        }
-
-        function drawSnake() {
-            ctx.fillStyle = '#0F0';
-            snake.forEach((segment, index) => {
-                ctx.fillRect(segment.x, segment.y, 20, 20);
-            });
-        }
-
-        function drawFood() {
-            ctx.fillStyle = '#F00';
-            ctx.fillRect(food.x, food.y, 20, 20);
-        }
-
-        function moveSnake() {
-            const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-            snake.unshift(head);
-            if (head.x === food.x && head.y === food.y) {
-                score++;
-                scoreDisplay.textContent = 'Score: ' + score;
-                food = randomFood();
-            } else {
-                snake.pop();
-            }
-        }
-
-        function checkCollision() {
-            const head = snake[0];
-            // Check wall collisions
-            if (head.x < 0 || head.x >= snakeCanvas.width || head.y < 0 || head.y >= snakeCanvas.height) {
-                return true;
-            }
-            // Check self collisions
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-            moveSnake();
-            if (checkCollision()) {
-                endGame();
-                return;
-            }
-            drawFood();
-            drawSnake();
-            allowDirectionChange = true;
-        }
-
-        function startGame() {
-            if (started) return;
-            started = true;
-            pressStartDiv.style.display = 'none';
-            scoreDisplay.style.display = 'block';
-            gameInterval = setInterval(gameLoop, 100);
-        }
-
-        function endGame() {
-            clearInterval(gameInterval);
-            gameOverDiv.style.display = 'block';
-            allowDirectionChange = false;
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if (!started) {
-                if (e.key === ' ') {
-                    startGame();
-                }
-                return;
-            }
-            if (!allowDirectionChange) return;
-            let newDir = null;
-            if (e.key === 'ArrowUp') newDir = { x: 0, y: -20 };
-            if (e.key === 'ArrowDown') newDir = { x: 0, y: 20 };
-            if (e.key === 'ArrowLeft') newDir = { x: -20, y: 0 };
-            if (e.key === 'ArrowRight') newDir = { x: 20, y: 0 };
-            if (newDir) {
-                const nextX = snake[0].x + newDir.x;
-                const nextY = snake[0].y + newDir.y;
-                if (snake.length < 2 || (nextX !== snake[1].x || nextY !== snake[1].y)) {
-                    direction = newDir;
-                    allowDirectionChange = false;
-                }
-            }
-        });
-
-        // Toggle Snake with Ctrl+Shift+X
-        window.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
-                e.preventDefault();
-                if (snakeModal.style.display === 'block') {
-                    snakeModal.style.display = 'none';
-                    resetGame();
-                } else {
-                    snakeModal.style.display = 'block';
-                    resetGame();
-                }
-            }
-        });
-
-        // Initialize
-        resetGame();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
