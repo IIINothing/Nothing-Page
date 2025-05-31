@@ -1,40 +1,175 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nothing</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Nothing v5.4</title>
+    <style>
+        body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; overflow-x: hidden; }
+        #asciiRain { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
+        #wrapper { max-width: 900px; margin: auto; text-align: center; }
+        h1 { font-size: 3em; margin-bottom: 10px; animation: flicker 3s infinite; }
+        @keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1; } 20%,24%,55% { opacity: 0.4; } }
+        img { display: block; margin: 0 auto; width: 150px; }
+        .intro { margin: 30px 0; font-size: 1em; line-height: 1.5em; text-align: left; }
+        .section-title { font-size: 1.8em; cursor: pointer; margin-top: 40px; border-left: 4px solid #fff; padding-left: 10px; text-align: left; }
+        .article-content { display: none; margin-top: 20px; text-align: left; line-height: 1.5em; white-space: pre-wrap; }
+        #snakeGame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none; background: #000; border: 3px solid #fff; padding: 10px; }
+    </style>
 </head>
 <body>
-    <!-- Rain canvases on left and right -->
-    <canvas id="rain-left"></canvas>
-    <canvas id="rain-right"></canvas>
+<canvas id="asciiRain"></canvas>
+<div id="wrapper">
+    <h1>Nothing</h1>
+    <img src="skull.gif" alt="skull">
 
-    <div class="content">
-        <h1>Nothing</h1>
-        <img src="ascii_skull.png" alt="ASCII Skull" class="skull">
-        <p class="intro">Soy Nothing, un programador dedicado a compartir información real y sin filtros sobre el mundo del hacking. En este foro encontrarás contenido detallado para cualquier persona interesada en conocer la realidad del hacking ético y sus técnicas, temas que no suelen abordarse en otros lugares. A través de estas páginas, te mostraré cómo funcionan los atacantes y el fraude con tarjetas, para que aprendas y te informes correctamente.</p>
-        <div class="section">
-            <span class="toggle-indicator">[ ]</span> &gt; CARDING
-            <div class="section-content">
-                <!-- Contenido completo del artículo ultra extendido integrado aquí -->
-                <!-- Placeholder text -->
-                <h2>Carding: Fraude con Tarjetas</h2>
-                <p>Aquí va la información detallada sobre carding...</p>
-            </div>
-        </div>
+    <div class="intro">
+Soy Nothing, un programador dedicado a compartir información real y sin filtros sobre el mundo del hacking.  
+En este foro encontrarás contenido detallado para cualquier persona interesada en conocer la realidad del hacking ético y sus técnicas, temas que no suelen abordarse en otros lugares.  
+A través de estas páginas, te mostraré cómo funcionan los atacantes y el fraude con tarjetas, para que aprendas y te informes correctamente.
     </div>
 
-    <!-- Snake game overlay -->
-    <div id="snake-container">
-        <canvas id="snake-canvas"></canvas>
-        <div id="snake-overlay">
-            <div id="press-start">PRESS START</div>
-            <div id="game-over" style="display:none;">GAME OVER</div>
-            <div id="score"></div>
-        </div>
+    <div class="section-title" onclick="toggleArticle()">| > CARDING</div>
+    <div class="article-content" id="article">
+... (contenido completo omitido para brevedad) ...
     </div>
+</div>
+<canvas id="asciiRain"></canvas>
+<canvas id="snakeGame" width="400" height="400"></canvas>
+<script>
+// ASCII lluvia solo en bordes
+const asciiRain = document.getElementById('asciiRain');
+const ctx = asciiRain.getContext('2d');
+function resizeRain() {
+  asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
+  fontSize = 16;
+  columns = Math.floor(asciiRain.width / fontSize);
+  drops = Array(columns).fill().map(() => Math.random() * -20);
+  ctx.clearRect(0, 0, asciiRain.width, asciiRain.height);
+}
+let fontSize = 16, columns, drops;
+resizeRain();
+let rainActive = false;
+function drawRain() {
+  if (!rainActive) return;
+  ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
+  ctx.fillStyle = '#fff'; ctx.font = fontSize + 'px monospace';
+  const wrapperWidth = 900;
+  const leftBound = (asciiRain.width - wrapperWidth) / 2;
+  const rightBound = leftBound + wrapperWidth;
+  const edgeMargin = 50; // margen adicional
+  for (let i = 0; i < drops.length; i++) {
+    const x = i * fontSize;
+    // solo dibujar si está fuera del área central más margen
+    if (x < leftBound + edgeMargin || x > rightBound - edgeMargin) {
+      ctx.fillText('☠', x, drops[i] * fontSize);
+      if (drops[i] * fontSize > asciiRain.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+}
+setInterval(drawRain, 35);
+window.addEventListener('resize', resizeRain);
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key.toLowerCase() === 'm') {
+    rainActive = !rainActive;
+    if (!rainActive) ctx.clearRect(0, 0, asciiRain.width, asciiRain.height);
+  }
+});
 
-    <script src="script.js"></script>
+// Mostrar/ocultar artículo
+function toggleArticle() {
+  const art = document.getElementById('article');
+  art.style.display = (art.style.display === 'block') ? 'none' : 'block';
+}
+
+// Juego de serpiente
+const snakeCanvas = document.getElementById('snakeGame');
+const sctx = snakeCanvas.getContext('2d');
+let box = 20, snake, direction, food, gameInterval, canChange = true, waiting = true, blinkVisible = true, score = 0;
+
+function resetSnake() {
+  snake = [{x:9*box,y:10*box}];
+  direction = "RIGHT";
+  food = {x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
+  score = 0;
+  canChange = true;
+}
+
+function drawPressStart() {
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  if (blinkVisible) {
+    sctx.fillStyle = "#fff";
+    sctx.font = "24px monospace";
+    sctx.textAlign = "center";
+    sctx.fillText("PRESS START", 200, 200);
+  }
+}
+
+function drawGameOver() {
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  sctx.fillStyle = "#fff";
+  sctx.font = "24px monospace";
+  sctx.textAlign = "center";
+  sctx.fillText("GAME OVER", 200, 180);
+  sctx.fillText("SCORE: " + score, 200, 220);
+}
+
+function drawSnake() {
+  let headX = snake[0].x, headY = snake[0].y;
+  if(direction=="LEFT") headX -= box;
+  if(direction=="UP") headY -= box;
+  if(direction=="RIGHT") headX += box;
+  if(direction=="DOWN") headY += box;
+  if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
+    clearInterval(gameInterval);
+    drawGameOver(); waiting = true; return;
+  }
+  for (let i = 1; i < snake.length; i++) {
+    if (headX === snake[i].x && headY === snake[i].y) {
+      clearInterval(gameInterval);
+      drawGameOver(); waiting = true; return;
+    }
+  }
+  snake.unshift({x: headX, y: headY});
+  if(headX === food.x && headY === food.y) {
+    score++;
+    food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+  } else {
+    snake.pop();
+  }
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  sctx.fillStyle = "#FF3B30"; sctx.fillRect(food.x, food.y, box, box);
+  sctx.fillStyle = "#A6C48A";
+  snake.forEach(segment => { sctx.fillRect(segment.x, segment.y, box, box); });
+  sctx.fillStyle = "#fff";
+  sctx.font = "16px monospace"; sctx.textAlign = "left";
+  sctx.fillText("SCORE: " + score, 10, 20);
+  canChange = true;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
+    if (snakeCanvas.style.display === 'block') {
+      snakeCanvas.style.display = 'none'; clearInterval(gameInterval); waiting = true;
+    } else {
+      snakeCanvas.style.display = 'block'; resetSnake(); waiting = true; blinkVisible = true;
+      drawPressStart();
+      gameInterval = setInterval(() => {
+        if (waiting) {
+          drawPressStart(); blinkVisible = !blinkVisible;
+        }
+      }, 500);
+    }
+  } else if (!waiting && canChange) {
+    if(e.key === "ArrowLeft" && direction !== "RIGHT") { direction = "LEFT"; canChange = false; }
+    else if(e.key === "ArrowUp" && direction !== "DOWN") { direction = "UP"; canChange = false; }
+    else if(e.key === "ArrowRight" && direction !== "LEFT") { direction = "RIGHT"; canChange = false; }
+    else if(e.key === "ArrowDown" && direction !== "UP") { direction = "DOWN"; canChange = false; }
+  } else if (waiting && e.key === " " ) {
+    clearInterval(gameInterval); waiting = false; resetSnake(); gameInterval = setInterval(drawSnake, 120);
+  }
+});
+</script>
 </body>
 </html>
