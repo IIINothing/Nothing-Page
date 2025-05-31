@@ -12,6 +12,15 @@
             background-color: #000;
             color: #fff;
             overflow-x: hidden;
+            position: relative;
+        }
+        #asciiRain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
         }
         #wrapper {
             max-width: 800px;
@@ -24,12 +33,6 @@
             border-bottom: 2px solid #fff;
             padding-bottom: 10px;
             animation: flicker 3s infinite;
-        }
-        img {
-            display: block;
-            margin: 20px auto;
-            width: 200px;
-            height: auto;
         }
         @keyframes flicker {
             0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
@@ -48,50 +51,23 @@
             margin-top: 10px;
             line-height: 1.5em;
         }
-        canvas.bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            display: none;
-        }
-        #snakeGame {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            display: none;
-            background: #000;
-            border: 3px solid #fff;
-            padding: 10px;
-        }
     </style>
 </head>
 <body>
-<canvas id="asciiRain" class="bg-canvas"></canvas>
+<canvas id="asciiRain"></canvas>
 
 <div id="wrapper">
     <h1>Nothing</h1>
-    <img src="skull.gif" alt="skull">
     <div class="tema">
         <h2>Introducción al Hacking Ético</h2>
-        <p>Conceptos básicos y principios del hacking responsable.</p>
-    </div>
-    <div class="tema">
-        <h2>Herramientas de Pentesting</h2>
-        <p>Exploración de herramientas populares para pruebas de penetración.</p>
-    </div>
-    <div class="tema">
-        <h2>Exploits y Vulnerabilidades</h2>
-        <p>Discusión sobre vulnerabilidades conocidas y exploits recientes.</p>
+        <p>La ciberseguridad es uno de los pilares fundamentales en el mundo digital actual. Cada día surgen nuevas amenazas, vulnerabilidades y ataques que afectan tanto a personas como a grandes organizaciones. En este contexto surge el <b>hacking ético</b>, una disciplina centrada en <b>identificar, analizar y mitigar vulnerabilidades antes de que puedan ser explotadas de forma maliciosa</b>.</p>
+        <p>A diferencia de los ciberdelincuentes, el hacker ético trabaja bajo un marco legal y ético, con autorización de las organizaciones, para proteger sistemas, redes y aplicaciones. Su objetivo es anticiparse a los atacantes, utilizando las mismas herramientas y técnicas, pero con el fin de <b>fortalecer la seguridad</b>.</p>
+        <p>Este foro ha sido creado con el propósito de <b>recopilar y organizar información clave sobre hacking, ciberseguridad y técnicas de pentesting</b>. Aquí encontrarás artículos, guías, conceptos y herramientas que te ayudarán a formarte, informarte y comprender mejor este amplio universo.</p>
+        <p>💻 <b>Soy NOTHING, y conmigo aprenderás sobre este contenido.</b></p>
     </div>
 </div>
 
-<canvas id="snakeGame" width="400" height="400"></canvas>
-
 <script>
-// Lluvia ☠ intacta
 const canvas = document.getElementById('asciiRain');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -124,117 +100,6 @@ window.addEventListener('resize', () => {
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.key === 'm') {
     rainActive = !rainActive;
-    canvas.style.display = rainActive ? 'block' : 'none';
-  }
-});
-
-// Snake Nokia intacto
-const snakeCanvas = document.getElementById('snakeGame');
-const sctx = snakeCanvas.getContext('2d');
-let box = 20, snake, direction, food, score, running = false, started = false, flickerInterval;
-const snakeColor = '#A6C48A';
-const foodColor = '#FF3B30';
-
-function showStartScreen() {
-  sctx.fillStyle = "#000";
-  sctx.fillRect(0, 0, 400, 400);
-  sctx.fillStyle = "#fff";
-  sctx.font = "30px monospace";
-  sctx.textAlign = "center";
-  sctx.fillText("PRESS START", 200, 200);
-  if (flickerInterval) clearInterval(flickerInterval);
-  flickerInterval = setInterval(() => {
-    sctx.clearRect(0, 180, 400, 40);
-    sctx.fillStyle = "#fff";
-    sctx.fillText("PRESS START", 200, 200);
-  }, 1000);
-}
-
-function showGameOver() {
-  sctx.fillStyle = "#000";
-  sctx.fillRect(0, 0, 400, 400);
-  sctx.fillStyle = "#fff";
-  sctx.font = "30px monospace";
-  sctx.textAlign = "center";
-  sctx.fillText("GAME OVER", 200, 180);
-  sctx.font = "16px monospace";
-  sctx.fillText("Press Space to Restart", 200, 220);
-}
-
-function startGame() {
-  clearInterval(flickerInterval);
-  snake = [{x: 9*box, y: 10*box}];
-  direction = "RIGHT";
-  food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
-  score = 0;
-  running = true;
-  started = true;
-  if(window.snakeLoop) clearInterval(window.snakeLoop);
-  window.snakeLoop = setInterval(drawSnake, 120);
-}
-
-function drawSnake() {
-  sctx.fillStyle = "#000";
-  sctx.fillRect(0,0,400,400);
-  for(let i=0; i<snake.length; i++) {
-    sctx.fillStyle = snakeColor;
-    sctx.fillRect(snake[i].x, snake[i].y, box, box);
-  }
-  sctx.fillStyle = foodColor;
-  sctx.fillRect(food.x, food.y, box, box);
-  let headX = snake[0].x;
-  let headY = snake[0].y;
-  if(direction == "LEFT") headX -= box;
-  if(direction == "UP") headY -= box;
-  if(direction == "RIGHT") headX += box;
-  if(direction == "DOWN") headY += box;
-
-  if(headX == food.x && headY == food.y) {
-    score++;
-    food = { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box };
-  } else {
-    snake.pop();
-  }
-
-  let newHead = {x: headX, y: headY};
-
-  if(headX < 0 || headY < 0 || headX >= 400 || headY >= 400 || collision(newHead, snake)) {
-    clearInterval(window.snakeLoop);
-    running = false;
-    started = false;
-    showGameOver();
-  }
-  snake.unshift(newHead);
-
-  sctx.fillStyle = "#fff";
-  sctx.font = "16px monospace";
-  sctx.fillText("Score: " + score, 50, 20);
-}
-
-function collision(head, array) {
-  for(let i=0; i<array.length; i++) {
-    if(head.x == array[i].x && head.y == array[i].y) return true;
-  }
-  return false;
-}
-
-document.addEventListener("keydown", function(e) {
-  if(!running && e.code === "Space" && !started) startGame();
-  if(e.key == "ArrowLeft" && direction != "RIGHT") direction = "LEFT";
-  else if(e.key == "ArrowUp" && direction != "DOWN") direction = "UP";
-  else if(e.key == "ArrowRight" && direction != "LEFT") direction = "RIGHT";
-  else if(e.key == "ArrowDown" && direction != "UP") direction = "DOWN";
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
-    if (snakeCanvas.style.display === 'block') {
-      snakeCanvas.style.display = 'none';
-      clearInterval(flickerInterval);
-    } else {
-      snakeCanvas.style.display = 'block';
-      showStartScreen();
-    }
   }
 });
 </script>
