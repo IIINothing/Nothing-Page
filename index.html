@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nothing v5.0</title>
+    <title>Nothing v5.2</title>
     <style>
         body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; overflow-x: hidden; }
         #asciiRain { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
@@ -15,7 +15,6 @@
         .section-title { font-size: 1.8em; cursor: pointer; margin-top: 40px; border-left: 4px solid #fff; padding-left: 10px; text-align: left; }
         .article-content { display: none; margin-top: 20px; text-align: left; line-height: 1.5em; white-space: pre-wrap; }
         #snakeGame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none; background: #000; border: 3px solid #fff; padding: 10px; }
-        #snakeOverlay { position: absolute; top: 0; left: 0; width: 400px; height: 400px; }
     </style>
 </head>
 <body>
@@ -223,49 +222,55 @@ Burlas:
 </div>
 <canvas id="snakeGame" width="400" height="400"></canvas>
 <script>
+// ASCII lluvia solo en bordes
 const asciiRain = document.getElementById('asciiRain');
 const ctx = asciiRain.getContext('2d');
-asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
-let fontSize = 16;
-let columns = Math.floor(asciiRain.width / fontSize);
-let drops = Array(columns).fill().map(() => Math.random() * -20);
+function resizeRain() {
+  asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
+  fontSize = 16;
+  columns = Math.floor(asciiRain.width / fontSize);
+  drops = Array(columns).fill().map(() => Math.random() * -20);
+}
+let fontSize = 16, columns, drops;
+resizeRain();
 let rainActive = false;
 function drawRain() {
   if (!rainActive) return;
   ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
   ctx.fillStyle = '#fff'; ctx.font = fontSize + 'px monospace';
+  const wrapperWidth = 900;
+  const leftBound = (asciiRain.width - wrapperWidth) / 2 + fontSize * 2;
+  const rightBound = leftBound + wrapperWidth - fontSize * 2;
   for (let i = 0; i < drops.length; i++) {
     const x = i * fontSize;
-    if (x < (asciiRain.width/2 - 450) || x > (asciiRain.width/2 + 450)) {
+    if (x < leftBound || x > rightBound) {
       ctx.fillText('☠', x, drops[i] * fontSize);
+      if (drops[i] * fontSize > asciiRain.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
     }
-    if (drops[i] * fontSize > asciiRain.height && Math.random() > 0.975) drops[i]=0;
-    drops[i]++;
   }
 }
 setInterval(drawRain, 35);
-window.addEventListener('resize', () => {
-  asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
-  columns = Math.floor(asciiRain.width / fontSize);
-  drops = Array(columns).fill().map(() => Math.random() * -20);
-});
-document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'm') rainActive = !rainActive; });
+window.addEventListener('resize', resizeRain);
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key.toLowerCase() === 'm') rainActive = !rainActive; });
 
+// Mostrar/ocultar artículo
 function toggleArticle() {
   const art = document.getElementById('article');
   art.style.display = (art.style.display === 'block') ? 'none' : 'block';
 }
 
+// Juego de serpiente
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
-let box = 20, snake, direction, food, gameInterval;
-let waiting = true, blinkVisible = true, score = 0;
+let box = 20, snake, direction, food, gameInterval, canChange = true, waiting = true, blinkVisible = true, score = 0;
 
 function resetSnake() {
   snake = [{x:9*box,y:10*box}];
   direction = "RIGHT";
   food = {x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
   score = 0;
+  canChange = true;
 }
 
 function drawPressStart() {
@@ -288,79 +293,59 @@ function drawGameOver() {
 }
 
 function drawSnake() {
-  // Movimiento
   let headX = snake[0].x, headY = snake[0].y;
   if(direction=="LEFT") headX -= box;
   if(direction=="UP") headY -= box;
   if(direction=="RIGHT") headX += box;
   if(direction=="DOWN") headY += box;
-  // Colisiones con muros
+  // Colisiones
   if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
     clearInterval(gameInterval);
-    drawGameOver(); waiting = true;
-    return;
+    drawGameOver(); waiting = true; return;
   }
-  // Colisión con cuerpo
-  for (let i = 0; i < snake.length; i++) {
+  for (let i = 1; i < snake.length; i++) {
     if (headX === snake[i].x && headY === snake[i].y) {
       clearInterval(gameInterval);
-      drawGameOver(); waiting = true;
-      return;
+      drawGameOver(); waiting = true; return;
     }
   }
-  // Agregar nueva cabeza
   snake.unshift({x: headX, y: headY});
-  // Comer comida
   if(headX === food.x && headY === food.y) {
     score++;
     food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
   } else {
     snake.pop();
   }
-  // Dibujo fondo
   sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
-  // Dibujo comida
   sctx.fillStyle = "#FF3B30"; sctx.fillRect(food.x, food.y, box, box);
-  // Dibujo snake
   sctx.fillStyle = "#A6C48A";
   snake.forEach(segment => { sctx.fillRect(segment.x, segment.y, box, box); });
-  // Dibujo puntaje
   sctx.fillStyle = "#fff";
-  sctx.font = "16px monospace";
-  sctx.textAlign = "left";
+  sctx.font = "16px monospace"; sctx.textAlign = "left";
   sctx.fillText("SCORE: " + score, 10, 20);
+  canChange = true;
 }
 
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
     if (snakeCanvas.style.display === 'block') {
-      snakeCanvas.style.display = 'none';
-      clearInterval(gameInterval);
-      waiting = true;
+      snakeCanvas.style.display = 'none'; clearInterval(gameInterval); waiting = true;
     } else {
-      snakeCanvas.style.display = 'block';
-      resetSnake();
-      waiting = true;
-      blinkVisible = true;
+      snakeCanvas.style.display = 'block'; resetSnake(); waiting = true; blinkVisible = true;
       drawPressStart();
       gameInterval = setInterval(() => {
         if (waiting) {
-          drawPressStart();
-          blinkVisible = !blinkVisible;
+          drawPressStart(); blinkVisible = !blinkVisible;
         }
       }, 500);
     }
-  } else if (!waiting) {
-    if(e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    else if(e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    else if(e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    else if(e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  } else if (!waiting && canChange) {
+    if(e.key === "ArrowLeft" && direction !== "RIGHT") { direction = "LEFT"; canChange = false; }
+    else if(e.key === "ArrowUp" && direction !== "DOWN") { direction = "UP"; canChange = false; }
+    else if(e.key === "ArrowRight" && direction !== "LEFT") { direction = "RIGHT"; canChange = false; }
+    else if(e.key === "ArrowDown" && direction !== "UP") { direction = "DOWN"; canChange = false; }
   } else if (waiting && e.key === " " ) {
-    // Iniciar juego al presionar espacio
-    clearInterval(gameInterval);
-    waiting = false;
-    resetSnake();
-    gameInterval = setInterval(drawSnake, 120);
+    clearInterval(gameInterval); waiting = false; resetSnake(); gameInterval = setInterval(drawSnake, 120);
   }
 });
 </script>
