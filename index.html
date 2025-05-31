@@ -5,14 +5,17 @@
     <meta charset="UTF-8">
     <title>Nothing v5.0</title>
     <style>
-        body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; }
+        body { background: #000; color: #fff; font-family: monospace; margin: 0; padding: 30px; overflow-x: hidden; }
         #asciiRain { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
-        #wrapper { max-width: 900px; margin: auto; }
-        h1 { font-size: 3em; text-align: center; border-bottom: 2px solid #fff; padding-bottom: 10px; }
-        img { display: block; margin: 20px auto; width: 200px; }
-        .section-title { font-size: 1.8em; cursor: pointer; margin-top: 50px; border-left: 4px solid #fff; padding-left: 10px; }
-        .article-content { display: none; margin-top: 20px; line-height: 1.5em; white-space: pre-wrap; }
+        #wrapper { max-width: 900px; margin: auto; text-align: center; }
+        h1 { font-size: 3em; margin-bottom: 10px; animation: flicker 3s infinite; }
+        @keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1; } 20%,24%,55% { opacity: 0.4; } }
+        img { display: block; margin: 0 auto; width: 150px; }
+        .intro { margin: 30px 0; font-size: 1em; line-height: 1.5em; text-align: left; }
+        .section-title { font-size: 1.8em; cursor: pointer; margin-top: 40px; border-left: 4px solid #fff; padding-left: 10px; text-align: left; }
+        .article-content { display: none; margin-top: 20px; text-align: left; line-height: 1.5em; white-space: pre-wrap; }
         #snakeGame { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none; background: #000; border: 3px solid #fff; padding: 10px; }
+        #snakeOverlay { position: absolute; top: 0; left: 0; width: 400px; height: 400px; }
     </style>
 </head>
 <body>
@@ -21,28 +24,216 @@
     <h1>Nothing</h1>
     <img src="skull.gif" alt="skull">
 
-    <div class="section-title" onclick="toggleArticle()">> CARDING</div>
+    <div class="intro">
+Soy Nothing, un programador dedicado a compartir información real y sin filtros sobre el mundo del hacking.  
+En este foro encontrarás contenido detallado para cualquier persona interesada en conocer la realidad del hacking ético y sus técnicas, temas que no suelen abordarse en otros lugares.  
+A través de estas páginas, te mostraré cómo funcionan los atacantes y el fraude con tarjetas, para que aprendas y te informes correctamente.
+    </div>
+
+    <div class="section-title" onclick="toggleArticle()">| > CARDING</div>
     <div class="article-content" id="article">
-        [CONTENIDO COMPLETO DEL ARTÍCULO ULTRA EXTENDIDO INTEGRADO AQUI]
+--- MÉTODOS DE CAPTURA DE DATOS ---
+
+Skimming clásico
+- Dispositivos físicos adheridos a cajeros automáticos, terminales POS y surtidores de gasolina.
+- Copian la banda magnética (Track 1, 2, 3) mientras el usuario realiza su operación.
+- Normalmente se acompaña de:
+  - Cámaras micro ocultas.
+  - Teclados falsos (overlays).
+  - Sensores térmicos para captar la presión de las teclas.
+  - Skimmers Bluetooth o WiFi para descarga remota.
+
+Shimming
+- Dispositivos insertados dentro del lector de chip EMV.
+- Capturan datos que viajan en el protocolo EMV.
+- Son prácticamente invisibles.
+
+Phishing / Smishing / Vishing
+- Ingeniería social mediante:
+  - Emails fraudulentos.
+  - Mensajes de texto.
+  - Llamadas fingiendo ser representantes bancarios.
+
+Brechas de seguridad
+- Hackeos a servidores bancarios, comercios, marketplaces y servicios digitales.
+
+Malware bancario
+- Keyloggers.
+- RATs.
+- Malware especializado para sesiones bancarias en tiempo real.
+
+--- CLASIFICACIÓN DE LOS DATOS ROBADOS ---
+
+- FULLZ — Identidad completa + tarjeta.
+- DUMPS — Datos de la banda magnética.
+- CVV2 — Tarjetas para fraude online.
+- BIN lists — Rangos de emisores válidos.
+- Balance logs — Fondos disponibles.
+
+--- DISPOSITIVOS UTILIZADOS ---
+
+Hardware físico
+- MSR605, MSR206, MSR X6 — Lectores y escritores de banda.
+- Embossers — Impresoras de relieve para plástico físico.
+- PC/SC readers — Lectores de chip EMV.
+- Overlay PIN pads — Captura de PIN.
+- Shimmers — Insertados dentro del lector EMV.
+- Bluetooth Skimmers — Remoto.
+
+Equipos avanzados
+- NFC readers — Lectura sin contacto a distancias mayores.
+- EMV Clone Hardware — Equipos especializados de alto costo.
+- ATM testing units — Cajeros vulnerables para pruebas.
+
+--- HERRAMIENTAS DE SOFTWARE EMPLEADAS ---
+
+- Smart Card ToolSet.
+- J2A/J3A JavaCard Toolkits.
+- TLV Editors para manipular EMV.
+- ARQC Generators para generar cryptograms falsos.
+- Checker Bots: validación masiva de dumps mediante micropagos.
+- Balance Checkers: verificación de fondos antes de clonar.
+- Cryptomixers: mezcla de fondos robados en criptomonedas.
+- POS emulators para testeo offline de clones.
+
+--- VALIDACIÓN DE DUMPS ---
+
+- Micropagos controlados en comercios online o POS de bajo riesgo.
+- Verificación de transacciones pequeñas antes de clonar en físico.
+- Alive cards vs Dead cards: diferencias operativas.
+
+--- WHITE CARDS (TARJETAS VÍRGENES) ---
+
+Tipos de White Cards
+- White Magstripe: solo banda magnética, fáciles de programar.
+- White EMV: chip virgen, requieren hardware y software EMV avanzado.
+- White NFC: chip contactless, uso limitado en fraude rutinario.
+
+--- ATM FALLBACK ---
+
+- Muchos cajeros modernos intentan leer el chip primero.
+- Si el chip falla o no responde, utilizan fallback a banda magnética.
+- Permite que clones basados en banda funcionen incluso en entornos EMV.
+
+--- PROGRAMACIÓN DE CLONES DE CHIP ---
+
+- Se debe cargar correctamente:
+  - Application Identifier (AID).
+  - Application Cryptograms (ARQC, ARPC).
+  - ICC Public Key Certificates.
+  - ICC Keys y registros de PSE.
+- Softwares privados en foros Tier 1 permiten emulación parcial de estos parámetros.
+
+--- ESTRUCTURA CRIMINAL Y ROLES ---
+
+- Vendedores de dumps: obtienen datos y los venden al por mayor.
+- Brokers: intermediarios que reparten dumps a otros grupos.
+- Validadores: testean dumps antes de ofrecerlos al mercado.
+- Clonadores: ensamblan físicos (white cards) con dumps validados.
+- Mulas financieras: cuidan las retiradas de efectivo en ATMs.
+- Líderes de grupos: organizan y coordinan redes de carding internacional.
+
+--- FOROS UNDERGROUND ---
+
+Niveles de acceso:
+1) Públicos: foros básicos con acceso libre a dumps menores.
+2) Privados: acceso controlado, invitaciones limitadas.
+3) Tier 1: foros cerrados, solo para carders de alto nivel y cifrado extremo.
+
+Se vende:
+- Dumps actualizados con garantía de funcionamiento.
+- Herramientas y scripts antiprotección.
+- Dispositivos físicos de clonación.
+- Cursos ilegales completos de hacking y fraude.
+- Servicios de lavado de dinero con criptos.
+
+--- PROCESO DE LAVADO DE FONDOS ---
+
+- Reclutamiento de mulas bancarias: personas para retirar efectivo y dar lavado.
+- Compra de bienes físicos (electrónica, criptos) y reventa en mercados secundarios.
+- Conversión directa a criptomonedas: uso de mixers y tumbler services.
+- Rutas secundarios: criptomonedas → bienes tangibles → efectivo limpio.
+
+--- ALIVE VS DEAD CARDS ---
+
+- Alive Cards: dumps completos, funcionales tras testeo online y offline.
+- Dead Cards: dumps inválidos, bloqueados o con BINs muertos.
+- Vendedores en foros ofrecen reemplazos para dumps Dead bajo ciertas condiciones.
+
+--- ATM JACKPOTTING ---
+
+- Instalación de malware en cajeros específicos para vaciarlos sin tarjeta.
+- Algunos grupos especializados combinan skimmers + malware + shimmers en ATMs.
+- El jackpotting avanzado extrae fondos sin utilizar tarjetas clonadas.
+
+--- GUÍAS EN FOROS PRIVADOS ---
+
+- Manuales completos en PDF y scripts en repositorios privados.
+- Tutorials de configuración MSR avanzados, con modos "stealth".
+- Guías de ingeniería social bancaria: cómo tomar el control de cuentas online.
+- Ejemplos de flujos completos de TTPs (Tactics, Techniques and Procedures).
+- Listados de ATM vulnerables por modelo y firmware (bases mantenidas internamente).
+- Documentos de "cazador de mulas" para el reclutamiento masivo.
+
+--- HERRAMIENTAS EMERGENTES 2024 ---
+
+- **PosEmu 2024**: emulador de POS portátil compatible con EMV y NFC, para testing offline.
+- **NFCscape Pro**: lector NFC de largo alcance para bypass de tarjetas contactless.
+- **ARQCForge**: software que intenta replicar ARQCs válidos con modelos ML.
+- **DumpScanner.ai**: algoritmo de IA para predecir si un dump está Alive o Dead sin testeo.
+- **CryptoMixHub**: plataforma avanzada para mezclar fondos con anonimato reforzado.
+- **ShimmerEvo**: nuevo diseño de shimmers ultradelgados, indetectables físicamente.
+
+--- SISTEMAS ANTIFRAUDE BANCARIO Y CÓMO SE BURLAN ---
+
+Fraude Scoring
+- Los bancos asignan puntuaciones en base a patrones de gasto.
+- Varias transacciones en corto tiempo aumentan puntaje de riesgo.
+Burlas:
+- Divider bots: realizan micropagos en intervalos aleatorios para pasar scoring.
+- Simulación de perfiles de gasto legítimos: bot randomiza montos y horarios.
+
+Machine Learning
+- Modelos entrenados en datos históricos de transacciones legítimas.
+- Detectan outliers en tiempo real.
+Burlas:
+- Colas de transacciones distribuidas: dispersan pagos en múltiples merchants de bajo riesgo.
+- Uso de IP spoofing y VPNs para falsear geolocalización.
+
+Velocity Checks
+- Límites de número de transacciones en ventana de tiempo.
+Burlas:
+- Uso de múltiples tarjetas con dumps similares para el mismo titular.
+- Automatización que rota tarjetas cada pocas transacciones.
+
+Geo-Location Mismatch
+- Monitoreo de la ubicación del dispositivo y ubicación del titular.
+Burlas:
+- Simulación de geolocalización con proxies móviles y arrendamientos de SIM seguras.
+
+3D Secure / OTP / Biometrics
+- Factores adicionales de autenticación para cada pago.
+Burlas:
+- Phishing dirigido: ataques a 2FA (sim swap, MFA interception).
+- Uso de bases filtradas con información 2FA comprometida (Account Takeover).
+- Uso de servicios de bypass de 3D Secure en mercados clandestinos.
+
+--- FIN DEL ARTÍCULO EXTENDIDO ---
     </div>
 </div>
 <canvas id="snakeGame" width="400" height="400"></canvas>
-
 <script>
 const asciiRain = document.getElementById('asciiRain');
 const ctx = asciiRain.getContext('2d');
-asciiRain.width = window.innerWidth;
-asciiRain.height = window.innerHeight;
+asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
 let fontSize = 16;
 let columns = Math.floor(asciiRain.width / fontSize);
 let drops = Array(columns).fill().map(() => Math.random() * -20);
 let rainActive = false;
 function drawRain() {
   if (!rainActive) return;
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
-  ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
-  ctx.fillStyle = '#fff';
-  ctx.font = fontSize + 'px monospace';
+  ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, asciiRain.width, asciiRain.height);
+  ctx.fillStyle = '#fff'; ctx.font = fontSize + 'px monospace';
   for (let i = 0; i < drops.length; i++) {
     const x = i * fontSize;
     if (x < (asciiRain.width/2 - 450) || x > (asciiRain.width/2 + 450)) {
@@ -54,8 +245,7 @@ function drawRain() {
 }
 setInterval(drawRain, 35);
 window.addEventListener('resize', () => {
-  asciiRain.width = window.innerWidth;
-  asciiRain.height = window.innerHeight;
+  asciiRain.width = window.innerWidth; asciiRain.height = window.innerHeight;
   columns = Math.floor(asciiRain.width / fontSize);
   drops = Array(columns).fill().map(() => Math.random() * -20);
 });
@@ -68,33 +258,110 @@ function toggleArticle() {
 
 const snakeCanvas = document.getElementById('snakeGame');
 const sctx = snakeCanvas.getContext('2d');
-let box = 20, snake, direction, food, running = false;
+let box = 20, snake, direction, food, gameInterval;
+let waiting = true, blinkVisible = true, score = 0;
+
+function resetSnake() {
+  snake = [{x:9*box,y:10*box}];
+  direction = "RIGHT";
+  food = {x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
+  score = 0;
+}
+
+function drawPressStart() {
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  if (blinkVisible) {
+    sctx.fillStyle = "#fff";
+    sctx.font = "24px monospace";
+    sctx.textAlign = "center";
+    sctx.fillText("PRESS START", 200, 200);
+  }
+}
+
+function drawGameOver() {
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  sctx.fillStyle = "#fff";
+  sctx.font = "24px monospace";
+  sctx.textAlign = "center";
+  sctx.fillText("GAME OVER", 200, 180);
+  sctx.fillText("SCORE: " + score, 200, 220);
+}
+
+function drawSnake() {
+  // Movimiento
+  let headX = snake[0].x, headY = snake[0].y;
+  if(direction=="LEFT") headX -= box;
+  if(direction=="UP") headY -= box;
+  if(direction=="RIGHT") headX += box;
+  if(direction=="DOWN") headY += box;
+  // Colisiones con muros
+  if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
+    clearInterval(gameInterval);
+    drawGameOver(); waiting = true;
+    return;
+  }
+  // Colisión con cuerpo
+  for (let i = 0; i < snake.length; i++) {
+    if (headX === snake[i].x && headY === snake[i].y) {
+      clearInterval(gameInterval);
+      drawGameOver(); waiting = true;
+      return;
+    }
+  }
+  // Agregar nueva cabeza
+  snake.unshift({x: headX, y: headY});
+  // Comer comida
+  if(headX === food.x && headY === food.y) {
+    score++;
+    food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+  } else {
+    snake.pop();
+  }
+  // Dibujo fondo
+  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
+  // Dibujo comida
+  sctx.fillStyle = "#FF3B30"; sctx.fillRect(food.x, food.y, box, box);
+  // Dibujo snake
+  sctx.fillStyle = "#A6C48A";
+  snake.forEach(segment => { sctx.fillRect(segment.x, segment.y, box, box); });
+  // Dibujo puntaje
+  sctx.fillStyle = "#fff";
+  sctx.font = "16px monospace";
+  sctx.textAlign = "left";
+  sctx.fillText("SCORE: " + score, 10, 20);
+}
+
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
-    if (snakeCanvas.style.display === 'block') { snakeCanvas.style.display = 'none'; clearInterval(window.snakeLoop); }
-    else { snakeCanvas.style.display = 'block'; startSnake(); }
+    if (snakeCanvas.style.display === 'block') {
+      snakeCanvas.style.display = 'none';
+      clearInterval(gameInterval);
+      waiting = true;
+    } else {
+      snakeCanvas.style.display = 'block';
+      resetSnake();
+      waiting = true;
+      blinkVisible = true;
+      drawPressStart();
+      gameInterval = setInterval(() => {
+        if (waiting) {
+          drawPressStart();
+          blinkVisible = !blinkVisible;
+        }
+      }, 500);
+    }
+  } else if (!waiting) {
+    if(e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if(e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if(e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if(e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  } else if (waiting && e.key === " " ) {
+    // Iniciar juego al presionar espacio
+    clearInterval(gameInterval);
+    waiting = false;
+    resetSnake();
+    gameInterval = setInterval(drawSnake, 120);
   }
-});
-function startSnake() {
-  snake = [{x:9*box,y:10*box}]; direction="RIGHT";
-  food = {x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
-  window.snakeLoop = setInterval(drawSnake,120);
-}
-function drawSnake() {
-  sctx.fillStyle = "#000"; sctx.fillRect(0,0,400,400);
-  for (let i=0;i<snake.length;i++) {{sctx.fillStyle="#A6C48A"; sctx.fillRect(snake[i].x,snake[i].y,box,box);}}
-  sctx.fillStyle="#FF3B30"; sctx.fillRect(food.x,food.y,box,box);
-  let headX = snake[0].x, headY = snake[0].y;
-  if(direction=="LEFT")headX-=box;if(direction=="UP")headY-=box;
-  if(direction=="RIGHT")headX+=box;if(direction=="DOWN")headY+=box;
-  if(headX==food.x&&headY==food.y){{snake.unshift({x:headX,y:headY});food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};}}
-  else {{snake.pop();snake.unshift({x:headX,y:headY});}}
-}
-document.addEventListener("keydown", function(e) {
-  if(e.key=="ArrowLeft"&&direction!="RIGHT")direction="LEFT";
-  else if(e.key=="ArrowUp"&&direction!="DOWN")direction="UP";
-  else if(e.key=="ArrowRight"&&direction!="LEFT")direction="RIGHT";
-  else if(e.key=="ArrowDown"&&direction!="UP")direction="DOWN";
 });
 </script>
 </body>
